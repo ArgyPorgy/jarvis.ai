@@ -139,3 +139,4 @@ def open_main_window():
     auto_scroll()
     root.after(100, welcome_message)
     root.mainloop()
+open_main_window()
