@@ -598,6 +598,56 @@ button_style2 = {
     "relief": tk.SOLID,  # Relief style (flat appearance)
     "activebackground": "darkblue",  # Background color when clicked
 }
+def create_login_window():
+    login = Tk()
+    login.title("Login")
+    login.configure(background='#192025', borderwidth=2, highlightthickness=3, relief=SOLID, highlightcolor="black")
+    window_width = 500
+    window_height = 500
+    screen_width = login.winfo_screenwidth()
+    screen_height = login.winfo_screenheight()
+    x_position = (screen_width - window_width) // 2
+    y_position = (screen_height - window_height) // 2
+    login.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+    login.resizable(False, False)
+    global user, code
+
+    frame = Frame(login, width = 400, height=400, bg = 'lightblue') 
+    frame.place(x = 50, y = 50)
+
+    heading = Label(frame, text = 'PRODUCT KEY VERIFICATION',fg = 'black', bg = 'lightblue', font=('Algerian', 20, 'bold'))
+    heading.place(x= 2, y = 30)
+
+    def on_enter(e):
+        user.delete(0, 'end')
+    def on_leave(e):
+        name = user.get()
+        if name=="":
+            user.insert(0, 'Username')
+    user = Entry(frame, width=25, fg = 'black', border=0, bg = 'lightblue', font=('Courier', 12))
+    user.place(x=30, y = 100)
+    user.insert(12, 'Username')
+    user.bind("<FocusIn>", on_enter)
+    user.bind("<FocusOut>", on_leave)
+    Frame(frame, width=300, height=2, bg = 'black').place(x=25, y=130)
+
+    def on_enter(e):
+        code.delete(0, 'end')
+    def on_leave(e):
+        pwd = code.get()
+        if pwd=="":
+            code.insert(0, 'Enter Product Key')
+    code = Entry(frame, width=25, fg = 'black', border=0, bg = 'lightblue', font=('Courier', 12))
+    code.place(x=30, y = 160)
+    code.insert(12, 'Enter Product Key')
+    code.bind("<FocusIn>", on_enter)
+    code.bind("<FocusOut>", on_leave)
+    Frame(frame, width=300, height=2, bg = 'black').place(x=25, y=190)
+
+    Button(frame, width = 25, pady=10, text = "Validate Key", fg = 'white', border = 0, bg = '#57a1fa', font=('Microsoft Yahei UI Light', 13), cursor='hand2', command = verify_login).place(x = 70, y = 250)
+
+    return login
+
 def auto_scroll():
     output_text.yview(tk.SCROLL, 1, "units")
     root.after(1000, auto_scroll)
@@ -676,4 +726,8 @@ def update_datetime():
     formatted_datetime = current_datetime.strftime("\t %d-%m-%Y \t %I:%M:%S %p")
     dt.config(text=formatted_datetime)
     root.after(1000, update_datetime)
-open_main_window()
+if os.environ.get("STATUS") == "VALIDATED":
+    open_main_window()
+else:
+    login_window = create_login_window()
+    login_window.mainloop()
