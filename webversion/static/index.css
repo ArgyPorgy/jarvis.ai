@@ -154,6 +154,7 @@ button[type="submit"]:hover {
     background-color: #2980b9;
 }
 
+
 /* Responsive adjustments for smaller screens */
 @media screen and (max-width: 600px) {
     h1 {
@@ -169,3 +170,9 @@ button[type="submit"]:hover {
         padding: 0 10px;
     }
 }
+    #razorpayButton, #razorpayForm
+    {
+        /* height: 50px; */
+        padding: 0;
+    
+    }
