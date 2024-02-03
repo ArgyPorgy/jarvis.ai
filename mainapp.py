@@ -74,7 +74,7 @@ def start_listening():
                         engine.say(locationcurrent)
                         output_text.insert(tk.END, f"{locationcurrent}\n")
                         engine.runAndWait()
-                    elif "" in command:
+                    elif command == "":
                         engine.say("Hello")
                         engine.runAndWait()
                         output_text.insert(tk.END, "Hello, nice to meet you!\n")
@@ -83,6 +83,14 @@ def start_listening():
                         engine.runAndWait()
                         output_text.insert(tk.END, "Shutting Down, Good bye !!\n")
                         shutdown()
+                        engine.runAndWait()
+                    elif "news" in command.lower():
+                        output_text.insert(tk.END, "Fetching news...\n")
+                        engine.say("fetching news")
+                        engine.runAndWait()
+                        news(command.lower())
+                    elif "weather" in command.lower() or "temperature" in command.lower():
+                        weather(command.lower())
                         engine.runAndWait()
                     elif "thank" in command.lower() or "thank you" in command.lower() or "thanks" in command.lower():
                         engine.say("I am glad to help you. Let me know if you want anything else.")
@@ -140,7 +148,83 @@ def get_calories(food_item):
         return calories
     else:
         return None
-    
+def news(command):
+    categories = ["business", "entertainment", "health", "science", "sports", "technology"]
+    category = "General"
+    for i in categories:
+        if i in command:
+            category = i
+            break
+    category = category.capitalize()
+    news_url = f"https://newsapi.org/v2/top-headlines?country=in&category={category}&apiKey={news_api_key}"
+    try:
+        response = requests.get(news_url)
+        news_data = response.json()
+        if news_data["status"] == "ok":
+            articles = news_data["articles"]
+            news_text = f"Here are the latest {category} headlines:\n\n"
+            engine.say(news_text)
+            engine.runAndWait()
+            output_text.insert(tk.END, news_text)
+            for index, article in enumerate(articles, start=1):
+                if( index > 5):
+                    break
+                if({article['title']}=="Removed" or article['description'] is None):
+                    index = index-1
+                    continue
+                else:
+                    news_text = f"{index}. {article['title']}:\n{article['description']}\n\n"
+                    output_text.insert(tk.END, news_text)
+                    # print(news_data)
+                    engine.say(f"News number{index} is {article['title']}")
+                    engine.runAndWait()
+        else:
+            return f"Error fetching {category} news. Please try again later."
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
+def weather(command):
+    city = extract_city_name(command)
+    if city:
+        weather_data = get_weather_data(city)
+        engine.say(weather_data)  # Speak the weather details
+        output_text.insert(tk.END, f"Weather in {city.capitalize()}: \n{weather_data}\n")
+        engine.runAndWait()
+    else:
+        output_text.insert(tk.END, "Location not recognized.\n")
+        engine.say("Location not recognized")
+
+def extract_city_name(command):
+    city = None
+    if "in" in command:
+        city = command.split("in")[1].strip()
+    elif "of" in command:
+        city = command.split("of")[1].strip()
+    return city
+
+def get_weather_data(city):
+    base_url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}'
+
+    try:
+        response = requests.get(base_url)
+        data = response.json()
+
+        temperature = data['main']['temp']
+        # humidity = data['main']['humidity']
+        # wind_speed = data['wind']['speed']
+        weather_description = data['weather'][0]['description']
+
+        result = (
+            f"Temperature: {round(temperature - 273.15, 2)} °C\n"
+            # f"Humidity: {humidity}%\n"
+            # f"Wind Speed: {wind_speed} m/s\n"
+            f"Description: {weather_description.capitalize()}"
+        )
+        return result
+
+    except Exception as e:
+        return f"Error fetching weather data: {e}"
+
+
 def chat_gpt(prompt):
      response = openai.ChatCompletion.create(
          model="gpt-3.5-turbo",
