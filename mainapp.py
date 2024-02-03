@@ -17,6 +17,7 @@ import os
 import win32api
 import wikipedia
 from datetime import datetime
+import pywhatkit as wp
 
 from dotenv import load_dotenv
 start_time = time.time()
