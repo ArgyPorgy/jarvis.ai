@@ -8,6 +8,7 @@ import threading
 import speech_recognition as sr
 import openai
 import pandas as pd
+import requests
 import random
 import time
 
@@ -137,8 +138,8 @@ def calculate_total_calories(food_items):
     print(f"\nOpenAI says: {answer}")    
 
 
-engine.say(message)
-engine.runAndWait()    
+#engine.say(message)
+#engine.runAndWait()    
 
 def activate_button():
     global listening_enabled
