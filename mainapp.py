@@ -8,7 +8,10 @@ import threading
 import speech_recognition as sr
 import openai
 import pandas as pd
+import random
+import time
 
+start_time = time.time()
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[1].id)
@@ -46,6 +49,11 @@ def start_listening():
                         engine.say("Yes i can hear you!")
                         engine.runAndWait()
                         output_text.insert(tk.END, "Yes i can hear you!\n")
+                    elif "who made you" in command.lower():
+                        output_text.insert(tk.END, "I was made by the Team 'THE BOYS'. \nClick the contributors option in the menu tab for more info.\n")
+                        change_background_image()
+                        engine.say("I was made by the team THE BOYS")
+                        engine.runAndWait()
 
             except sr.UnknownValueError:
                 output_text.insert(tk.END, "Sorry, could not understand audio.\n")
@@ -134,7 +142,30 @@ def activate_button():
     terminate_button.pack(pady=(10, 10))
     listen_thread = threading.Thread(target=start_listening)
     listen_thread.start()
+    
+def restore_initial_image(new_bg_image):
+    new_image = Image.open("jarvis.jpg")
+    new_image = new_image.resize((750, 500), Image.BICUBIC)
+    new_bg_image = ImageTk.PhotoImage(new_image)
+    canvas.create_image(0, 0, anchor=tk.NW, image=new_bg_image)
 
+def change_background_image():
+    new_image = Image.open("us.png")
+    new_image = new_image.resize((750, 500), Image.BICUBIC)
+    new_bg_image = ImageTk.PhotoImage(new_image)
+    canvas.create_image(0, 0, anchor=tk.NW, image=new_bg_image)
+    # canvas.create_text(375, 20, text= "CREATORS OF JARVIS", fill="lightblue", font=("Algerian", 35, 'bold'))
+    # canvas.pack(fill="both", expand=True)
+    root.after(10000, lambda: restore_initial_image(new_bg_image))
+
+
+def change_border_color():
+    # Generate random RGB values for the border color
+    border_color = "#{:02x}{:02x}{:02x}".format(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    root.configure(borderwidth=2, highlightthickness=3, relief=tk.SOLID, highlightcolor=border_color)
+    # Schedule the function to run again after a delay (e.g., 100 milliseconds)
+    if (time.time() - start_time) < 1:
+        root.after(500, change_border_color)
 def show_help():
     messagebox.showinfo("Help", "This is a help message.")
 
