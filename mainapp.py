@@ -16,10 +16,7 @@ import os
 import win32api
 import datetime
 
-openai_api_key = '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'
-# Set the OpenAI API key
-openai.api_key = openai_api_key
-
+from dotenv import load_dotenv
 start_time = time.time()
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
@@ -27,6 +24,9 @@ engine.setProperty('voice', voices[1].id)
 engine.setProperty('rate', 150)
 listening_enabled = False
 
+load_dotenv()
+openAPI = os.getenv('openai_api_key')
+openai.api_key=openAPI
 def get_command(command): 
     if "assistant" in command:
         command = command.split("assistant")[1].strip()
@@ -200,6 +200,7 @@ def ask_openai(question):
 
     chatgpt_response = response.choices[0].message['content']
     return chatgpt_response
+
 '''def get_current_time_and_date():
     now = datetime.now()
     current_time = now.strftime("%H:%M")
