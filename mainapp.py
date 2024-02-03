@@ -29,7 +29,7 @@ def start_listening():
                     isJarvis = recognizer.recognize_google(hotword)
                     output_text.insert(tk.END, isJarvis)
                 
-                if 'assistant' in isJarvis.lower() or "jarvis" in isJarvis.lower() or "john is" in isJarvis.lower() or "janice" in isJarvis.lower():
+                if 'assistant' in isJarvis.lower() or "jarvis" in isJarvis.lower():
                     # recognizer.pause_threshold= 1 #new 
                     # change_border_color()
                     output_text.insert(tk.END, "Hey\n")
