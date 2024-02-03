@@ -20,6 +20,14 @@ from datetime import datetime
 import pywhatkit as wp
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+import ast
+import datetime
+
 start_time = time.time()
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
@@ -32,6 +40,7 @@ api_key = os.environ.get("WEATHER_API_KEY")
 news_api_key = os.environ.get("news_api_key")
 openAPI = os.getenv('openai_api_key')
 openai.api_key=openAPI
+food_data = pd.read_csv('food.csv')
 def get_command(command): 
     if "assistant" in command:
         command = command.split("assistant")[1].strip()
@@ -48,7 +57,7 @@ def start_listening():
         while listening_enabled:  # Check if listening is still enabled
             output_text.insert(tk.END, "Listening...\n")
             try:
-                recognizer.pause_threshold= 0.8 #new 
+                recognizer.pause_threshold= 1 #new 
                 audio = recognizer.listen(source, timeout=10)
                 command = recognizer.recognize_google(audio)
                 output_text.insert(tk.END, f"You said: {command}\n")
@@ -106,6 +115,8 @@ def start_listening():
                         engine.say("fetching news")
                         engine.runAndWait()
                         news(command.lower())
+                    elif "schedule" in command.lower():
+                        eventcalendar(command)   
                     elif "weather" in command.lower() or "temperature" in command.lower():
                         weather(command.lower())
                         engine.runAndWait()
@@ -123,6 +134,15 @@ def start_listening():
                         output_text.insert(tk.END, resp)
                         engine.say(f"{resp}")
                         engine.runAndWait()
+
+                    elif "calories" in command.lower():
+                        food_item=command.lower()
+                        food_items = [food.strip() for food in food_item.split('and')]
+                        for food_item in food_items:
+                                get_calories(food_item)
+                        calculate_total_calories(food_items)
+
+
                     elif "joke" in command.lower():
                         joke = get_dad_joke()
                         output_text.insert(tk.END, joke)
@@ -201,6 +221,132 @@ def translate(command):
     """
     resp = chat_gpt(tranProm)
     return resp
+
+SCOPES = ["https://www.googleapis.com/auth/calendar"]
+
+# Set OpenAI API key
+load_dotenv()
+
+# Get the OpenAI API key from the environment variables
+openai_api_key = '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'
+
+# Set the OpenAI API key
+openai.api_key = openai_api_key
+
+eventex = {
+    'summary': 'Google I/O ',
+    'location': '800 Howard St., San Francisco, CA 94103',
+    'description': 'A chance to hear more about Google\'s developer products.',
+    'start': {
+        'dateTime': '2024-01-19T09:00:00+05:30',  # Corrected timezone offset
+        'timeZone': 'Asia/Kolkata',
+    },
+    'end': {
+        'dateTime': '2024-01-19T17:00:00+05:30',  # Corrected timezone offset
+        'timeZone': 'Asia/Kolkata',
+    },
+    'recurrence': [
+        'RRULE:FREQ=DAILY;COUNT=2'
+    ],
+    'attendees': [
+        {'email': 'carghya10@gmail.com'},
+    ],
+    'reminders': {
+        'useDefault': False,
+        'overrides': [
+            {'method': 'email', 'minutes': 24 * 60},
+            {'method': 'popup', 'minutes': 10},
+        ],
+    },
+}
+
+# gpt_calendar_response = {}
+
+
+
+def eventcalendar(command):
+    global gpt_calendar_response
+    engine.say("Can you tell me more about the event?")
+    engine.runAndWait()
+    output_text.insert(tk.END, "\nCan you tell me more about the event?\n")
+    
+
+    while True:
+        user_input = command.lower()
+        
+
+        calendarprompt = f'''i want you to write me the details of the event using the following context : {user_input}. You must write the details in a similar format like it is written in {eventex} strictly. No matter what, stick to the original format given in {eventex}. Keep recurrence the same as given in {eventex}. If there is some context missing in {user_input}, keep those particular parts the same as {eventex}. Under any condition, DO NOT keep any value blank or change anything in the original format given in {eventex}.'''
+        gpt_calendar_response = chat_gpt(calendarprompt)
+        # print(gpt_calendar_response)
+        aicalendar()
+        engine.say("Your meeting is scheduled.")
+        engine.runAndWait()
+        output_text.insert(tk.END, "\nYour meeting is scheduled.\n")
+
+def aicalendar():
+    global gpt_calendar_response  # Declare as global
+    """Shows basic usage of the Google Calendar API.
+    Prints the start and name of the next 10 events on the user's calendar.
+    """
+    creds = None
+    # The file token.json stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first
+    # time.
+    if os.path.exists("token.json"):
+        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                "credentials.json", SCOPES
+            )
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open("token.json", "w") as token:
+            token.write(creds.to_json())
+
+    try:
+        service = build("calendar", "v3", credentials=creds)
+        try:
+            event = ast.literal_eval(gpt_calendar_response)
+        except (ValueError, SyntaxError) as e:
+            print(f"Error evaluating the dictionary: {e}")
+            return
+        print(event)
+        event = service.events().insert(calendarId='primary', body=event).execute()
+        print(f"Event created: {event.get('htmlLink')}")
+
+        # Call the Calendar API
+        now = datetime.datetime.utcnow().isoformat() + "Z"  # 'Z' indicates UTC time
+        print("Getting the upcoming 10 events")
+        events_result = (
+            service.events()
+            .list(
+                calendarId="primary",
+                timeMin=now,
+                maxResults=10,
+                singleEvents=True,
+                orderBy="startTime",
+            )
+            .execute()
+        )
+        events = events_result.get("items", [])
+
+        if not events:
+            print("No upcoming events found.")
+            return
+
+        # Prints the start and name of the next 10 events
+        for event in events:
+            start = event["start"].get("dateTime", event["start"].get("date"))
+            print(start, event["summary"])
+
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+
+
 
 
 def news(command):
@@ -559,6 +705,55 @@ def start_timer(sub):
         timer_label.config(text=timer_text)
         root.update()
         time.sleep(1)
+
+def get_calories(food_item):
+    # Check if the food item is in the loaded CSV data
+    if food_item.lower() in food_data['Food'].str.lower().values:
+        # Retrieve the calories for the given food item
+        calories = food_data.loc[food_data['Food'].str.lower() == food_item.lower(), 'Calories'].values[0]
+        return calories
+    else:
+        return None
+        
+
+# def ask_openai(question):
+#     # Generate a prompt for OpenAI based on the question
+#     prompt = f"Tell me the calories of {question}."
+
+#     # Use OpenAI API to generate a response
+#     response = openai.ChatCompletion.create(
+#         model="gpt-3.5-turbo",
+#         messages=[
+#             {"role": "user", "content": prompt}
+#         ]
+#     )
+
+    # chatgpt_response = response.choices[0].message['content']
+    # return chatgpt_response
+
+def calculate_total_calories(food_items):
+    total_calories = 0
+
+    for food_item in food_items:
+        calories = get_calories(food_item)
+        if calories is not None:
+            total_calories += calories
+            print(f"{food_item} has {calories} calories.")
+            engine.say(f"{food_item} has {calories} calories.")
+            engine.runAndWait()
+        else:
+            print(f"Sorry, {food_item} not found in the database.")
+    engine.say(f"Total calories for all foods: {total_calories}")
+    engine.runAndWait()
+    Message = (f"Total calories for all foods: {total_calories}")
+    output_text.insert(tk.END, Message)
+    
+
+    # Optionally, you can ask OpenAI for a summary or additional information
+    # question = "Tell me about the nutritional content of the foods."
+    # answer = ask_openai(question)
+    # print(f"\nOpenAI says: {answer}")    
+
 
 def turn_off_study_mode():
     global study_mode_enabled,subj
