@@ -48,7 +48,7 @@ def start_listening():
         while listening_enabled:  # Check if listening is still enabled
             output_text.insert(tk.END, "Listening...\n")
             try:
-                recognizer.pause_threshold= 1 #new 
+                recognizer.pause_threshold= 0.8 #new 
                 audio = recognizer.listen(source, timeout=10)
                 command = recognizer.recognize_google(audio)
                 output_text.insert(tk.END, f"You said: {command}\n")
@@ -96,8 +96,9 @@ def start_listening():
                         engine.runAndWait()
                     elif "who" in command.lower() or "wikipedia" in command.lower() :
                         resp = searchWiki(command)
-                        output_text.insert(tk.END, "According to Wikipedia -> ")
+                        output_text.insert(tk.END, f"According to Wikipedia -> \n {resp}")
                         resp = "according to wikipedia, "+resp
+
                         engine.say(resp)
                         engine.runAndWait()
                     elif "news" in command.lower():
@@ -122,7 +123,7 @@ def start_listening():
                         output_text.insert(tk.END, resp)
                         engine.say(f"{resp}")
                         engine.runAndWait()
-                    elif "jokes" in command.lower():
+                    elif "joke" in command.lower():
                         joke = get_dad_joke()
                         output_text.insert(tk.END, joke)
                         engine.say(joke)
