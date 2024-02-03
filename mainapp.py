@@ -15,10 +15,10 @@ import time
 import sys
 import os
 import win32api
-import wikipedia
+from web3 import Web3
 from datetime import datetime
 import pywhatkit as wp
-
+from pymongo import MongoClient
 from dotenv import load_dotenv
 start_time = time.time()
 engine = pyttsx3.init('sapi5')
@@ -540,7 +540,7 @@ def turn_off_study_mode():
     output_text.pack(pady=10)
     # Remove the timer label
     timer_label.pack_forget()
-    dt.pack(pady=(10, 10))
+    dt.pack(pady=(10, 10),  anchor=W)
     # Process the study time
     end_time = time.time()
     study_time = int(end_time - study_start_time)
@@ -598,6 +598,92 @@ button_style2 = {
     "relief": tk.SOLID,  # Relief style (flat appearance)
     "activebackground": "darkblue",  # Background color when clicked
 }
+
+def isBlock(key):
+
+    # Mumbai Matic network endpoint (QuickNode in this example)
+    matic_mumbai_url = "https://rpc-mumbai.maticvigil.com/"
+    w3 = Web3(Web3.HTTPProvider(matic_mumbai_url))
+
+    # Replace the following variables with your actual contract address and ABI
+    contract_address = "0xf5a01b2c617Ff413E2d821B943E5Bf690bda064B"
+
+    
+    with open('abi.json', 'r') as file:
+        contract_abi = json.load(file)
+
+    contract = w3.eth.contract(address=contract_address, abi=contract_abi)
+
+
+    try:
+        client = MongoClient("mongodb+srv://sohamde2004:sohamjgd@sohamcluster.imcgngv.mongodb.net/?retryWrites=true&w=majority")
+        db = client.get_database("Razor_pay")
+        records = db.Keys_DB
+        ans = records.find_one({'testkey': key})
+        if(ans == None):
+
+        # Call the smart contract function to verify the product key
+            result = contract.functions.verifyProductKey(key).call()
+
+            if result:
+            
+                return True
+            else:
+                return False
+        else:
+            
+            return True
+    except Exception as e:
+        print(f"Error during verification: {e}")
+        return False
+def isKeyPresent(key):
+    client = MongoClient("mongodb+srv://sohamde2004:sohamjgd@sohamcluster.imcgngv.mongodb.net/?retryWrites=true&w=majority")
+    db = client.get_database("keys_db")
+    records = db.student_records
+    ans = records.find_one({'testkey': key})
+    if ans == None:
+        return False
+    else:
+        return True
+
+def insertKEY(key):
+    client = MongoClient("mongodb+srv://sohamde2004:sohamjgd@sohamcluster.imcgngv.mongodb.net/?retryWrites=true&w=majority")
+    db = client.get_database("keys_db")
+    records = db.student_records
+
+
+    # records.count_documents({})#counts the number of docus
+
+    new_key = {
+        "testkey":f"{key}",
+        "valid":"true"
+    }
+    records.insert_one(new_key)
+
+
+def verify_login():
+    username = user.get()
+    password = code.get()
+
+    # Example: Check if the username and password match
+    if isBlock(password):
+        if(isKeyPresent(password) == False):
+        # If login is successful, close the login window and open the main window
+            insertKEY(password)
+            
+            value_to_add = "STATUS = VALIDATED"
+
+            # Append the new value to the .env file
+            with open(".env", "a") as env_file:
+                env_file.write("\n" + value_to_add + "\n")
+            login_window.destroy()
+            open_main_window()
+        else:
+            messagebox.showerror("Login Failed" , "Product Key already used")    
+    else:
+        messagebox.showerror("Login Failed", "Invalid product key ")
+
+
 def create_login_window():
     login = Tk()
     login.title("Login")
