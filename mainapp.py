@@ -18,6 +18,8 @@ import win32api
 from web3 import Web3
 from datetime import datetime
 import pywhatkit as wp
+from plyer import notification
+import winsound
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from google.auth.transport.requests import Request
@@ -88,10 +90,21 @@ def start_listening():
                         change_background_image()
                         engine.say("I was made by the team THE BOYS")
                         engine.runAndWait()
+                    elif "reminder" in command.lower() or "alarm" in command.lower():
+                        output_text.insert(tk.END, "Setting reminder...\n")
+                        engine.say("Setting reminder")
+                        engine.runAndWait()
+                        # reminder(command.lower())
+                        noti = threading.Thread(target=reminder, args=(command.lower(),))
+                        noti.start()
+                        start_listening()
+                        noti.join()
+                        # engine.runAndWait()
                     elif "location" in command.lower() or "where i am" in command.lower():
                         locationcurrent = get_location()
                         engine.say(locationcurrent)
                         output_text.insert(tk.END, f"{locationcurrent}\n")
+                        webbrowser.open("https://www.google.com/maps/place/" + locationcurrent, new=1, autoraise=True)
                         engine.runAndWait()
                     elif command == "":
                         engine.say("Hello")
@@ -347,6 +360,69 @@ def aicalendar():
         print(f"An error occurred: {error}")
 
 
+def change(t, extra):
+    time_parts = t.split(':')    
+        # Convert hours and minutes to minutes
+    if len(time_parts) == 2:
+        hours, minutes = map(int, time_parts)
+        total_minutes = hours * 60 + minutes + extra
+    # Convert hours, minutes, and seconds to minutes
+    elif len(time_parts) == 3:
+        hours, minutes, seconds = map(int, time_parts)
+        total_minutes = hours * 60 + minutes + seconds / 60 + extra
+    else:
+        raise ValueError("Invalid time format")
+    return total_minutes
+def timdif(command):
+    extra = 0
+    if "a.m." in command:
+        t = command.split("a.m.")[0].strip()
+    elif 'p.m.' in command:
+        t = command.split("p.m.")[0].strip()
+        extra = 12 * 60
+    else:
+        t = command
+    now = datetime.now()
+    timestamp = now.strftime("%H:%M:%S")
+    ctime = change(timestamp, 0)
+    gtime = change(t, extra)
+    min = gtime - ctime
+    return min*60
+
+def reminder(command):
+    if "regarding" in command:
+        matter = command.split("regarding")[1].strip()
+        command = command.split("regarding")[0].strip()
+    elif "for" in command:
+        matter = command.split("for")[1].strip()
+        command = command.split("for")[0].strip()
+    else:
+        recognizer = sr.Recognizer()
+
+        with sr.Microphone() as source:
+            recognizer.adjust_for_ambient_noise(source)
+            output_text.insert(tk.END, "Please tell me your event message: \n")
+            # engine.say("Please tell me your event message")
+            try:
+                audio = recognizer.listen(source, timeout=10)
+                matter = recognizer.recognize_google(audio)
+                output_text.insert(tk.END, f"Your message: {matter}\n")
+            except sr.UnknownValueError:
+                output_text.insert(tk.END, "Sorry, could not understand audio.\n")
+                return ""
+            except sr.RequestError as e:
+                print(
+                    f"Could not request results from Google Speech Recognition service; {e}"
+                )
+                return ""
+    t = timdif(command.split("at")[1].strip())
+    time.sleep(t)
+    
+    notification.notify(title="REMINDER", message=matter, app_name="Notifier", app_icon="ico.ico", toast=True, timeout=20)
+    i=0
+    while(i==5):
+        winsound.Beep(4000, 1000)
+        i+=1
 
 
 def news(command):
