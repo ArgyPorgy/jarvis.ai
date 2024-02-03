@@ -124,6 +124,7 @@ const contract_abi = [
 		"type": "function"
 	}
 ]
+
 async function purchaseWithMetamask() {
     var email = document.getElementById('email').value;
     var name = document.getElementById('name').value;
@@ -158,9 +159,11 @@ async function purchaseWithMetamask() {
             method: 'eth_sendTransaction',
             params: [transactionParameters],
         });
+        
         const web3 = new Web3(window.ethereum);
-        const contract_address = "0xf5a01b2c617Ff413E2d821B943E5Bf690bda064B"
-        const contract = new web3.eth.Contract(contract_abi, contract_address);
+    const contract_address = "0xf5a01b2c617Ff413E2d821B943E5Bf690bda064B"
+    const contract = new web3.eth.Contract(contract_abi, contract_address);
+
         const pkey = generateProductKey();
         const result = await contract.methods.addProductKey(pkey).send({
             from: senderAddress,
@@ -210,6 +213,40 @@ async function purchaseWithMetamask() {
     }
 }
 
+function handlePaymentCallback() {
+    // Handle the payment completion callback here
+    // alert("Payment completed:", response);
+    const pkey = generateProductKey();
+    var email = document.getElementById('email').value;
+    var name = document.getElementById('name').value;
+    const data = {
+        pkey : pkey,
+        email : email,
+        name : name
+    }
+    
+    fetch("/storeDB", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log("Success:", data);
+          sendTransactionDetailsToServer(pkey,email, name);
+          
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+
+// sendTransactionDetailsToServer(pkey, email, name)
+    // Add your custom logic, e.g., redirect to a thank-you page
+    
+}
+
 async function waitForTransactionConfirmation(transactionHash) {
     return new Promise((resolve, reject) => {
         const checkConfirmation = async () => {
@@ -229,10 +266,38 @@ async function waitForTransactionConfirmation(transactionHash) {
     });
 }
 
+/*
+function sendFROMSAYAN()
+{
+    const private_key = "c5df9f4535944d8e3df7b5801e5552a9974f60b565af17b4e9b2ace1442308ce";
+    
 
+    const account_address =  "0x998F8Fca5845908E83FFe299b98eC3F5c05b3093";
+
+    web3.eth.accounts.wallet.add(private_key);
+web3.eth.defaultAccount = account_address;
+const pkey = generateProductKey()
+contract.methods.addProductKey(pkey).send({ from: account_address })
+  .on('transactionHash', function (hash) {
+    console.log('Transaction Hash:', hash);
+  })
+  .on('confirmation', function (confirmationNumber, receipt) {
+    console.log('Confirmation Number:', confirmationNumber);
+    console.log('Receipt:', receipt);
+  })
+  .on('error', function (error) {
+    console.error('Error:', error);
+  });
+}
+*/
 document.getElementById('razorpayForm').addEventListener('submit', function (e) {
     // Prevent the form from submitting (Razorpay will handle it)
+
+    
+
+
     e.preventDefault();
+    
 });
 
 // Razorpay handler function

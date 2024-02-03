@@ -30,13 +30,16 @@
             <button id="metamaskBtn" onclick="purchaseWithMetamask()">
               Purchase with Metamask
             </button>
-            <form id="razorpayForm">
-              <script
-                src="https://checkout.razorpay.com/v1/payment-button.js"
-                data-payment_button_id="pl_NVeuBNQu6taSEh"
-                async
-              ></script>
-            </form>
+
+            <button id="razorpayButton" onclick="handlePaymentCallback()">
+              <form id="razorpayForm">
+                <script
+                  src="https://checkout.razorpay.com/v1/payment-button.js"
+                  data-payment_button_id="pl_NVeuBNQu6taSEh"
+                  async
+                ></script>
+              </form>
+            </button>
           </div>
         </section>
       </div>
