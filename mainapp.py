@@ -117,6 +117,16 @@ def start_listening():
                         engine.say("See you soon again! Sayonara...")
                         engine.runAndWait()
                         terminate()
+                    elif "translate" in command.lower():
+                        resp = translate(command)
+                        output_text.insert(tk.END, resp)
+                        engine.say(f"{resp}")
+                        engine.runAndWait()
+                    elif "jokes" in command.lower():
+                        joke = get_dad_joke()
+                        output_text.insert(tk.END, joke)
+                        engine.say(joke)
+                        engine.runAndWait()
                     elif "study mode" in command.lower():
                         engine.say("initiating study mode")
                         # engine.runAndWait()
@@ -169,6 +179,28 @@ def get_calories(food_item):
 def searchWiki(query):
     result = wp.info(query, lines = 2, return_value=True)
     return result
+
+def get_dad_joke():
+    url = "https://icanhazdadjoke.com/"
+    headers = {"Accept": "application/json"}
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        joke_data = response.json()
+        joke = joke_data["joke"]
+        return joke
+    else:
+        return "Failed to retrieve dad joke."
+        
+def translate(command):
+    tranProm = f"""
+    I will provide you a text and translate it to me in english
+    {command}
+    """
+    resp = chat_gpt(tranProm)
+    return resp
+
 
 def news(command):
     categories = ["business", "entertainment", "health", "science", "sports", "technology"]
