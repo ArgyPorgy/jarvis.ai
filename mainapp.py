@@ -96,6 +96,7 @@ def start_listening():
                         locationcurrent = get_location()
                         engine.say(locationcurrent)
                         output_text.insert(tk.END, f"{locationcurrent}\n")
+                        webbrowser.open("https://www.google.com/maps/place/" + locationcurrent, new=1, autoraise=True)
                         engine.runAndWait()
                     elif command == "":
                         engine.say("Hello")
