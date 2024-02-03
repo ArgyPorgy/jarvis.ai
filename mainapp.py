@@ -12,6 +12,13 @@ import requests
 import random
 import time
 import sys
+import os
+import win32api
+import datetime
+
+openai_api_key = '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'
+# Set the OpenAI API key
+openai.api_key = openai_api_key
 
 start_time = time.time()
 engine = pyttsx3.init('sapi5')
@@ -86,6 +93,15 @@ def start_listening():
                         engine.say("See you soon again! Sayonara...")
                         engine.runAndWait()
                         terminate()
+                        
+                    else:
+
+                    
+                        resp = chat_gpt(command)
+                        output_text.insert(tk.END, f"\n {resp}\n")
+                        resp = "According to Chat GPT, "+ resp
+                        engine.say(resp)
+                        engine.runAndWait()
                     
             except sr.UnknownValueError:
                 output_text.insert(tk.END, "Sorry, could not understand audio.\n")
@@ -124,6 +140,17 @@ def get_calories(food_item):
         return calories
     else:
         return None
+    
+def chat_gpt(prompt):
+     response = openai.ChatCompletion.create(
+         model="gpt-3.5-turbo",
+         messages=[
+             {"role": "user", "content": prompt}
+         ]
+     )
+
+     chatgpt_response = response.choices[0].message['content']
+     return chatgpt_response
 
 def shutdown():
     if sys.platform.startswith('win'):
@@ -173,6 +200,35 @@ def ask_openai(question):
 
     chatgpt_response = response.choices[0].message['content']
     return chatgpt_response
+'''def get_current_time_and_date():
+    now = datetime.now()
+    current_time = now.strftime("%H:%M")
+    current_date = now.strftime("%Y-%m-%d")
+    return f"The current time is {current_time} and the date is {current_date}"
+'''
+
+def open_application(app_name):
+    try:
+        win32api.ShellExecute(0, "open", f"{app_name}.exe", None, None, 1)
+        engine.say(f"{app_name} opened successfully.")
+        engine.runAndWait()
+
+    except:
+        engine.say(f"{app_name} Not found in machine go for web version.")
+        engine.runAndWait()
+        open_web_version(app_name)
+
+def open_web_version(app_name):
+    try:
+        base_url = "https://{app_name}.com/"
+        app_url = base_url.format(app_name=app_name.lower())
+        webbrowser.open(app_url)
+
+        engine.say(f"{app_name} opened successfully.")
+        engine.runAndWait()
+
+    except Exception as e:
+        print(f"An error occurred\n")
 
 def calculate_total_calories(food_items):
     total_calories = 0
