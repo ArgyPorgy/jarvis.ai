@@ -1,3 +1,4 @@
+import json
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext, PhotoImage
 from tkinter import *
@@ -59,6 +60,11 @@ def start_listening():
                         engine.say("Yes i can hear you!")
                         engine.runAndWait()
                         output_text.insert(tk.END, "Yes i can hear you!\n")
+                    elif "what can you do" in command or "what are your features" in command:
+                        output_text.insert(tk.END,"these are all my features.")
+                        engine.say("these are all my features.")
+                        engine.runAndWait()
+                        show_help()
                     elif "ip" in command.lower():
                         ip=ipadd()
                         engine.say(ip)
@@ -101,10 +107,11 @@ def start_listening():
                         engine.say("See you soon again! Sayonara...")
                         engine.runAndWait()
                         terminate()
-                        
+                    elif "study mode" in command.lower():
+                        engine.say("initiating study mode")
+                        # engine.runAndWait()
+                        start_study_mode()
                     else:
-
-                    
                         resp = chat_gpt(command)
                         output_text.insert(tk.END, f"\n {resp}\n")
                         resp = "According to Chat GPT, "+ resp
@@ -392,10 +399,55 @@ def welcome_message():
     engine.runAndWait()
 
 def show_help():
-    print("HElp showed")
+    help_window = tk.Toplevel()
+    # Calculate the center position of the screen
+    screen_width = help_window.winfo_screenwidth()
+    screen_height = help_window.winfo_screenheight()
+    x_position = (screen_width - 300) // 2  # Adjust the width as needed
+    y_position = (screen_height - 300) // 2  # Adjust the height as needed
+    help_window.configure(bg = 'lightblue')
+    # Set window position and size
+    help_window.geometry(f"300x300+{x_position}+{y_position}")
+    # Customize the style of the window
+    help_window.title("JARVIS - Help Box")
+    help_label = scrolledtext.ScrolledText(help_window, wrap=tk.WORD, width=40, height=20, relief=tk.FLAT, bg = 'lightblue')
+    help_label.pack(padx=10, pady=10)
+    try:
+        with open('help.txt', 'r') as file:
+            content = file.read()
+            help_label.delete('1.0', tk.END)  # Clear existing content
+            help_label.insert(tk.END, content)  # Insert new content
+    except FileNotFoundError:
+        help_label.delete('1.0', tk.END)
+        help_label.insert(tk.END, "File not found... ")
 
 def study_mode_data():
-    print("Study mode enabled")
+    try:
+        with open("study_info.json", "r") as file:
+            study_data = json.load(file)
+
+        study_data_window = tk.Toplevel(root)
+        study_data_window.title("Study Data")
+        study_data_window.configure(bg = 'lightblue')
+        tree = ttk.Treeview(study_data_window, columns=("Index", "Subject", "Time", "Record"), show = 'headings')
+        tree.heading("#1", text="Index")  # Add an index column
+        tree.heading("#2", text="Subject")
+        tree.heading("#3", text="Duration of study")
+        tree.heading("#4", text="Recorded on")
+        for index, (subject, time, record) in enumerate(zip(study_data["subject"], study_data["time"], study_data["record"]), start=1):
+            tree.insert("", index, values=(index, subject, time, record))
+             
+        tree.pack(expand=True, fill=tk.BOTH)
+        scrollbar = ttk.Scrollbar(study_data_window, orient="vertical", command=tree.yview)
+        tree.configure(yscrollcommand=scrollbar.set)
+
+        # Pack the Treeview and Scrollbar
+        tree.pack(side=tk.LEFT, fill=tk.Y)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        study_data_window.resizable(False, False)
+    except Exception as e:
+        print(f"Error reading file: {e}")
 
 def get_gpt_help():
     if not get_gpt_help.has_run:
@@ -404,8 +456,98 @@ def get_gpt_help():
         chatgpt_button.pack_forget()
 get_gpt_help.has_run = False
 
+def start_study_mode():
+    global study_mode_enabled, study_start_time
+    new_image = Image.open("study.jpg")
+    #new_image = Image.open("never.jpg")
+    new_image = new_image.resize((750, 500), Image.BICUBIC)
+    new_bg_image = ImageTk.PhotoImage(new_image)
+    canvas.create_image(0, 0, anchor=tk.NW, image=new_bg_image)
+    
+    study_mode_enabled = True
+    study_start_time = time.time()
+    turn_off_study_button.pack(pady=(10, 10))
+    chatgpt_button.pack(pady=(10,10))
+    # Remove other widgets
+    activate_button.pack_forget()
+    terminate_button.pack_forget()
+    quit_button.pack_forget()
+    # output_text.pack_forget()
+    
+    dt.pack_forget()
+    timer_label.pack(pady=(10,10))
+    # Ask the user what to study
+    engine.say("Welcome to Study Mode! What subject do you want to study?")
+    engine.runAndWait()
+    # Wait for user input
+    subject = listen_and_get_subject()
+    # Start the timer
+    study_subject = subject
+    start_timer(study_subject)
+
+def listen_and_get_subject():
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source)
+        output_text.insert(tk.END, "Listening for study subject...\n")
+        try:
+            audio = recognizer.listen(source, timeout=10)
+            subject = recognizer.recognize_google(audio)
+            output_text.insert(tk.END, f"Subject to study: {subject}\n")
+            return subject
+        except sr.UnknownValueError:
+            output_text.insert(tk.END, "Sorry, could not understand the study subject.\n")
+            return ""
+        except sr.RequestError as e:
+            print(f"Could not request results from Google Speech Recognition service; {e}")
+            return ""
+
+def start_timer(sub):
+    global study_mode_enabled, study_start_time,subj
+    subj=sub
+    while study_mode_enabled:
+        elapsed_time = time.time() - study_start_time
+        timer_text = f"Study Mode for {sub} - {int(elapsed_time // 60)} min {int(elapsed_time % 60)} sec"
+        timer_label.config(text=timer_text)
+        root.update()
+        time.sleep(1)
+
 def turn_off_study_mode():
-    print("Study mode disabled")
+    global study_mode_enabled,subj
+    study_mode_enabled = False
+    # Reset the window to its original state
+    # background_label.place_forget()
+    turn_off_study_button.pack_forget()
+    chatgpt_button.pack_forget()
+    # activate_button.pack(pady=(10, 10))
+    terminate_button.pack(pady=(10, 10))
+    quit_button.pack(pady=10)
+    output_text.pack(pady=10)
+    # Remove the timer label
+    timer_label.pack_forget()
+    dt.pack(pady=(10, 10))
+    # Process the study time
+    end_time = time.time()
+    study_time = int(end_time - study_start_time)
+    open("studymodedata.txt", "w").write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - {subj} - Studied for {study_time // 60} minutes and {study_time % 60} seconds.")
+    try:
+        with open('study_info.json', 'r') as json_file:
+            existing_data = json.load(json_file)
+    except FileNotFoundError:
+        # If the file doesn't exist, initialize with empty lists
+        existing_data = {"subject": [], "time": [], "record": []}
+
+    # Append the new study record to the existing data
+    existing_data["subject"].append(subj)
+    existing_data["time"].append(f"{study_time//60} minutes and {study_time%60} seconds")
+    existing_data["record"].append(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+    # Write the updated data back to the JSON file
+    with open('study_info.json', 'w') as json_file:
+        json.dump(existing_data, json_file, indent=2)
+
+    engine.say(f"You studied for {study_time // 60} minutes and {study_time % 60} seconds.")
+    engine.runAndWait()
 
 def toggle_panel():
     target_x = 0 if slide_panel.winfo_x() < 0 else -155
@@ -446,7 +588,7 @@ def auto_scroll():
     root.after(1000, auto_scroll)
 # Create the main window
 def open_main_window():
-    global root, output_text, timer_label, chatgpt_button, turn_off_study_button, terminate_button, activate_button, canvas, slide_panel, quit_button
+    global root, output_text, timer_label, chatgpt_button, turn_off_study_button, terminate_button, activate_button, canvas, slide_panel, quit_button, dt
     root = tk.Tk()
     root.title("JARVIS - THE AI ASSISTANT")
 
@@ -506,9 +648,17 @@ def open_main_window():
     
     root.resizable(False, False)
 
-    timer_label = tk.Label(root, text="", font=("Segoe UI", 14, "bold"), foreground="#3498db", bg = 'black')
-    timer_label.pack(pady=(10, 10))
+    timer_label = tk.Label(root, font=("Segoe UI", 14, "bold"), foreground="#3498db", bg = 'black')
+    # timer_label.pack(pady=(10, 10))
+    dt = tk.Label(root, font=("Segoe UI", 14, "bold"), foreground="#3498db", bg = 'black')
+    dt.pack(pady=(10, 10), anchor=W)
+    update_datetime()
     auto_scroll()
     root.after(100, welcome_message)
     root.mainloop()
+def update_datetime():
+    current_datetime = datetime.now()
+    formatted_datetime = current_datetime.strftime("\t %d-%m-%Y \t %I:%M:%S %p")
+    dt.config(text=formatted_datetime)
+    root.after(1000, update_datetime)
 open_main_window()
