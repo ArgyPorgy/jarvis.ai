@@ -28,7 +28,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import ast
-import datetime
+from cctv import cctv
 
 start_time = time.time()
 engine = pyttsx3.init('sapi5')
@@ -137,6 +137,18 @@ def start_listening():
                         engine.say("I am glad to help you. Let me know if you want anything else.")
                         output_text.insert(tk.END, "Welcome...\n")
                         engine.runAndWait()
+                    elif "connect cctv" in command.lower():
+                        engine.say("Trying a connection...")
+                        engine.runAndWait()
+                        try:
+                            cctv()
+                            engine.say("successfuly connected")
+                            engine.runAndWait()
+                        except Exception as e:
+                            engine.say("An error occurred!") 
+                            engine.runAndWait()
+
+
                     elif "deactivate" in command.lower():
                         output_text.insert(tk.END, "Sayonara!\n")
                         engine.say("See you soon again! Sayonara...")
