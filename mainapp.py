@@ -49,6 +49,11 @@ def start_listening():
                         engine.say("Yes i can hear you!")
                         engine.runAndWait()
                         output_text.insert(tk.END, "Yes i can hear you!\n")
+                    elif "ip" in command.lower():
+                        ip=ipadd()
+                        engine.say(ip)
+                        output_text.insert(tk.END, f"{ip}\n")
+                        engine.runAndWait()
                     elif "who made you" in command.lower():
                         output_text.insert(tk.END, "I was made by the Team 'THE BOYS'. \nClick the contributors option in the menu tab for more info.\n")
                         change_background_image()
@@ -92,6 +97,11 @@ def get_calories(food_item):
         return calories
     else:
         return None
+def ipadd():
+    requests.get('https://get.geojs.io/')
+    ip=requests.get('https://get.geojs.io/v1/ip.json')
+    ipadd=ip.json()['ip']
+    return ipadd
 
 def ask_openai(question):
     # Generate a prompt for OpenAI based on the question
