@@ -15,7 +15,8 @@ import time
 import sys
 import os
 import win32api
-import datetime
+import wikipedia
+from datetime import datetime
 
 from dotenv import load_dotenv
 start_time = time.time()
@@ -26,6 +27,8 @@ engine.setProperty('rate', 150)
 listening_enabled = False
 
 load_dotenv()
+api_key = os.environ.get("WEATHER_API_KEY")
+news_api_key = os.environ.get("news_api_key")
 openAPI = os.getenv('openai_api_key')
 openai.api_key=openAPI
 def get_command(command): 
@@ -89,6 +92,12 @@ def start_listening():
                         engine.runAndWait()
                         output_text.insert(tk.END, "Shutting Down, Good bye !!\n")
                         shutdown()
+                        engine.runAndWait()
+                    elif "who" in command.lower() or "wikipedia" in command.lower() :
+                        resp = searchWiki(command)
+                        output_text.insert(tk.END, "According to Wikipedia -> ")
+                        resp = "according to wikipedia, "+resp
+                        engine.say(resp)
                         engine.runAndWait()
                     elif "news" in command.lower():
                         output_text.insert(tk.END, "Fetching news...\n")
@@ -155,6 +164,11 @@ def get_calories(food_item):
         return calories
     else:
         return None
+    
+def searchWiki(query):
+    result = wp.info(query, lines = 2, return_value=True)
+    return result
+
 def news(command):
     categories = ["business", "entertainment", "health", "science", "sports", "technology"]
     category = "General"
