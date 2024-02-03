@@ -60,7 +60,12 @@ def start_listening():
                         change_background_image()
                         engine.say("I was made by the team THE BOYS")
                         engine.runAndWait()
-
+                    
+                    elif "location" in command.lower() or "where i am" in command.lower():
+                        locationcurrent = get_location()
+                        engine.say(locationcurrent)
+                        output_text.insert(tk.END, f"{locationcurrent}\n")
+                        engine.runAndWait()
             except sr.UnknownValueError:
                 output_text.insert(tk.END, "Sorry, could not understand audio.\n")
                 # engine.say("Sorry, could not understand audio.")
@@ -98,6 +103,18 @@ def get_calories(food_item):
         return calories
     else:
         return None
+    
+def get_location():
+    r = requests.get('https://get.geojs.io/')
+    ip=requests.get('https://get.geojs.io/v1/ip.json')
+    ipadd=ip.json()['ip']
+    url='https://get.geojs.io/v1/ip/geo/'+ipadd+'.json'
+
+    geoo_req= requests.get(url)
+    geo_data = geoo_req.json()
+    location=("Your location is " + geo_data['city']+","+geo_data['region']+","+geo_data['country'])
+    return location
+
 def ipadd():
     requests.get('https://get.geojs.io/')
     ip=requests.get('https://get.geojs.io/v1/ip.json')
