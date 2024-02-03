@@ -6,6 +6,8 @@ import pyttsx3
 import webbrowser
 import threading
 import speech_recognition as sr
+import openai
+import pandas as pd
 
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
@@ -71,6 +73,54 @@ def terminate():
 
     terminate_button.pack_forget()
     activate_button.pack(pady=(10,10))
+
+food_data = pd.read_csv('food.csv')
+
+def get_calories(food_item):
+    # Check if the food item is in the loaded CSV data
+    if food_item.lower() in food_data['Food'].str.lower().values:
+        # Retrieve the calories for the given food item
+        calories = food_data.loc[food_data['Food'].str.lower() == food_item.lower(), 'Calories'].values[0]
+        return calories
+    else:
+        return None
+
+def ask_openai(question):
+    # Generate a prompt for OpenAI based on the question
+    prompt = f"Tell me the calories of {question}."
+
+    # Use OpenAI API to generate a response
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+    )
+
+    chatgpt_response = response.choices[0].message['content']
+    return chatgpt_response
+
+def calculate_total_calories(food_items):
+    total_calories = 0
+
+    for food_item in food_items:
+        calories = get_calories(food_item)
+        if calories is not None:
+            total_calories += calories
+            print(f"{food_item} has {calories} calories.")
+        else:
+            print(f"Sorry, {food_item} not found in the database.")
+
+    print(f"\nTotal calories for all foods: {total_calories}")
+
+    # Optionally, you can ask OpenAI for a summary or additional information
+    question = "Tell me about the nutritional content of the foods."
+    answer = ask_openai(question)
+    print(f"\nOpenAI says: {answer}")    
+
+
+engine.say(message)
+engine.runAndWait()    
 
 def activate_button():
     global listening_enabled

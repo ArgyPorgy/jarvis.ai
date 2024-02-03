@@ -24,34 +24,32 @@ def ask_openai(question):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "user", "content": prompt}        ]
+            {"role": "user", "content": prompt}
+        ]
     )
 
     chatgpt_response = response.choices[0].message['content']
     return chatgpt_response
 
+def calculate_total_calories(food_items):
+    total_calories = 0
 
+    for food_item in food_items:
+        calories = get_calories(food_item)
+        if calories is not None:
+            total_calories += calories
+            print(f"{food_item} has {calories} calories.")
+        else:
+            print(f"Sorry, {food_item} not found in the database.")
 
-# Example usage
-food_item = input("you:")
-food_items = [food.strip() for food in food_item.split(',')]
+    print(f"\nTotal calories for all foods: {total_calories}")
 
-total_calories = 0
-# calories = get_calories(food_item)
-
-for food_item in food_items:
-    calories = get_calories(food_item)
-    if calories is not None:
-        total_calories += calories
-        print(f"{food_items} has {total_calories} calories.")
-    else:
-        print(f"Sorry, {food_item} not found in the database.")
-
-
-if calories is not None:
-    question = f"How many calories does {food_item} have?"
+    # Optionally, you can ask OpenAI for a summary or additional information
+    question = "Tell me about the nutritional content of the foods."
     answer = ask_openai(question)
+    print(f"\nOpenAI says: {answer}")
 
-    print(f"OpenAI says: {answer}")
-else:
-    print(f"Sorry, {food_item} not found in the database.")
+if __name__ == "__main__":
+    food_input = input("you:")
+    food_items_list = [food.strip() for food in food_input.split(',')]
+    calculate_total_calories(food_items_list)
