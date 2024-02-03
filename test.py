@@ -7,6 +7,7 @@ food_data = pd.read_csv('food.csv')
 # Set your OpenAI API key
 openai.api_key = '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'
 
+
 def get_calories(food_item):
     # Check if the food item is in the loaded CSV data
     if food_item.lower() in food_data['Food'].str.lower().values:
@@ -16,20 +17,19 @@ def get_calories(food_item):
     else:
         return None
 
-def ask_openai(question):
-    # Generate a prompt for OpenAI based on the question
-    prompt = f"Tell me the calories of {question}."
+# def ask_openai(question):
+#     # Generate a prompt for OpenAI based on the question
+#     prompt = f"Tell me the calories of {question}."
+#     # Use OpenAI API to generate a response
+#     response = openai.ChatCompletion.create(
+#         model="gpt-3.5-turbo",
+#         messages=[
+#             {"role": "user", "content": prompt}
+#         ]
+#     )
 
-    # Use OpenAI API to generate a response
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
-    )
-
-    chatgpt_response = response.choices[0].message['content']
-    return chatgpt_response
+#     chatgpt_response = response.choices[0].message['content']
+#     return chatgpt_response
 
 def calculate_total_calories(food_items):
     total_calories = 0
@@ -45,9 +45,9 @@ def calculate_total_calories(food_items):
     print(f"\nTotal calories for all foods: {total_calories}")
 
     # Optionally, you can ask OpenAI for a summary or additional information
-    question = "Tell me about the nutritional content of the foods."
-    answer = ask_openai(question)
-    print(f"\nOpenAI says: {answer}")
+    # question = "Tell me about the nutritional content of the foods."
+    # answer = ask_openai(question)
+    # print(f"\nOpenAI says: {answer}")
 
 if __name__ == "__main__":
     food_input = input("you:")

@@ -17,50 +17,9 @@ voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[1].id)
 engine.setProperty('rate', 150)
 listening_enabled = False
+food_data = pd.read_csv('food.csv')
+food_item=''
 
-def start_listening():
-    global listening_enabled
-    recognizer = sr.Recognizer()
-
-    with sr.Microphone() as source:
-        recognizer.adjust_for_ambient_noise(source)
-        while listening_enabled:  # Check if listening is still enabled
-            output_text.insert(tk.END, "Listening...\n")
-            try:
-                isJarvis = ''
-                with sr.Microphone() as sourceT:
-                    recognizer.pause_threshold= 0.5 #new 
-                    hotword = recognizer.listen(sourceT)
-                    isJarvis = recognizer.recognize_google(hotword)
-                    output_text.insert(tk.END, isJarvis)
-                
-                if 'assistant' in isJarvis.lower() or "jarvis" in isJarvis.lower():
-                    # recognizer.pause_threshold= 1 #new 
-                    # change_border_color()
-                    output_text.insert(tk.END, "Hey\n")
-                    engine.say("Hello! ")
-                    # engine.runAndWait()
-                     
-                    audio = recognizer.listen(source, timeout=10)
-                    command = recognizer.recognize_google(audio)
-                    output_text.insert(tk.END, f"You said: {command}\n")
-
-                    if "can you hear" in command.lower():
-                        engine.say("Yes i can hear you!")
-                        engine.runAndWait()
-                        output_text.insert(tk.END, "Yes i can hear you!\n")
-                    elif "who made you" in command.lower():
-                        output_text.insert(tk.END, "I was made by the Team 'THE BOYS'. \nClick the contributors option in the menu tab for more info.\n")
-                        change_background_image()
-                        engine.say("I was made by the team THE BOYS")
-                        engine.runAndWait()
-
-            except sr.UnknownValueError:
-                output_text.insert(tk.END, "Sorry, could not understand audio.\n")
-                # engine.say("Sorry, could not understand audio.")
-                # engine.runAndWait()
-            except sr.WaitTimeoutError:
-                handle_wait_timeout_error()
 
 def handle_wait_timeout_error():
     global listening_enabled
@@ -82,7 +41,7 @@ def terminate():
     terminate_button.pack_forget()
     activate_button.pack(pady=(10,10))
 
-food_data = pd.read_csv('food.csv')
+
 
 def get_calories(food_item):
     # Check if the food item is in the loaded CSV data
@@ -116,19 +75,20 @@ def calculate_total_calories(food_items):
         if calories is not None:
             total_calories += calories
             print(f"{food_item} has {calories} calories.")
+            engine.say(f"{food_item} has {calories} calories.")
+            engine.runAndWait()
         else:
             print(f"Sorry, {food_item} not found in the database.")
-
-    print(f"\nTotal calories for all foods: {total_calories}")
+    engine.say(f"Total calories for all foods: {total_calories}")
+    Message = (f"Total calories for all foods: {total_calories}")
+    output_text.insert(tk.END, Message)
+    
 
     # Optionally, you can ask OpenAI for a summary or additional information
     question = "Tell me about the nutritional content of the foods."
     answer = ask_openai(question)
     print(f"\nOpenAI says: {answer}")    
 
-
-engine.say(message)
-engine.runAndWait()    
 
 def activate_button():
     global listening_enabled
@@ -238,6 +198,61 @@ def auto_scroll():
     output_text.yview(tk.SCROLL, 1, "units")
     root.after(1000, auto_scroll)
 # Create the main window
+    
+def start_listening():
+    global listening_enabled
+    recognizer = sr.Recognizer()
+
+    with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source)
+        while listening_enabled:  # Check if listening is still enabled
+            output_text.insert(tk.END, "Listening...\n")
+            try:
+                isJarvis = ''
+                with sr.Microphone() as sourceT:
+                    recognizer.pause_threshold= 0.5 #new 
+                    hotword = recognizer.listen(sourceT)
+                    isJarvis = recognizer.recognize_google(hotword)
+                    output_text.insert(tk.END, isJarvis)
+                
+                if 'assistant' in isJarvis.lower() or "jarvis" in isJarvis.lower():
+                    # recognizer.pause_threshold= 1 #new 
+                    # change_border_color()
+                    output_text.insert(tk.END, "Hey\n")
+                    engine.say("Hello! ")
+                    # engine.runAndWait()
+                     
+                    audio = recognizer.listen(source, timeout=10)
+                    command = recognizer.recognize_google(audio)
+                    output_text.insert(tk.END, f"You said: {command}\n")
+
+                    if "can you hear" in command.lower():
+                        engine.say("Yes i can hear you!")
+                        engine.runAndWait()
+                        output_text.insert(tk.END, "Yes i can hear you!\n")
+                    elif "who made you" in command.lower():
+                        output_text.insert(tk.END, "I was made by the Team 'THE BOYS'. \nClick the contributors option in the menu tab for more info.\n")
+                        change_background_image()
+                        engine.say("I was made by the team THE BOYS")
+                        engine.runAndWait()
+
+                    elif "calorie" in command.lower():
+                        get_calories(food_item)
+                        food_input=command
+                        food_items_list = [food.strip() for food in food_input.split(',')]
+                        calculate_total_calories(food_items_list)
+
+                            
+
+            except sr.UnknownValueError:
+                output_text.insert(tk.END, "Sorry, could not understand audio.\n")
+                # engine.say("Sorry, could not understand audio.")
+                # engine.runAndWait()
+            except sr.WaitTimeoutError:
+                handle_wait_timeout_error()
+
+
+
 def open_main_window():
     global root, output_text, timer_label, chatgpt_button, turn_off_study_button, terminate_button, activate_button, canvas, slide_panel, quit_button
     root = tk.Tk()
