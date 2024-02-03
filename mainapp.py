@@ -11,6 +11,7 @@ import pandas as pd
 import requests
 import random
 import time
+import sys
 
 start_time = time.time()
 engine = pyttsx3.init('sapi5')
@@ -18,6 +19,13 @@ voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[1].id)
 engine.setProperty('rate', 150)
 listening_enabled = False
+
+def get_command(command): 
+    if "assistant" in command:
+        command = command.split("assistant")[1].strip()
+    elif "jarvis" in command:
+        command = command.split("jarvis")[1].strip()
+    return command
 
 def start_listening():
     global listening_enabled
@@ -28,23 +36,17 @@ def start_listening():
         while listening_enabled:  # Check if listening is still enabled
             output_text.insert(tk.END, "Listening...\n")
             try:
-                isJarvis = ''
-                with sr.Microphone() as sourceT:
-                    recognizer.pause_threshold= 0.5 #new 
-                    hotword = recognizer.listen(sourceT)
-                    isJarvis = recognizer.recognize_google(hotword)
-                    output_text.insert(tk.END, isJarvis)
-                
-                if 'assistant' in isJarvis.lower() or "jarvis" in isJarvis.lower():
+                recognizer.pause_threshold= 1 #new 
+                audio = recognizer.listen(source, timeout=10)
+                command = recognizer.recognize_google(audio)
+                output_text.insert(tk.END, f"You said: {command}\n")
+                change_border_color()
+                if 'assistant' in command.lower() or "jarvis" in command.lower():
                     # recognizer.pause_threshold= 1 #new 
-                    # change_border_color()
-                    output_text.insert(tk.END, "Hey\n")
-                    engine.say("Hello! ")
+                    change_border_color()
+                    # engine.say("Hello!")
                     # engine.runAndWait()
-                     
-                    audio = recognizer.listen(source, timeout=10)
-                    command = recognizer.recognize_google(audio)
-                    output_text.insert(tk.END, f"You said: {command}\n")
+                    command = get_command(command.lower())
 
                     if "can you hear" in command.lower():
                         engine.say("Yes i can hear you!")
@@ -60,12 +62,31 @@ def start_listening():
                         change_background_image()
                         engine.say("I was made by the team THE BOYS")
                         engine.runAndWait()
-                    
                     elif "location" in command.lower() or "where i am" in command.lower():
                         locationcurrent = get_location()
                         engine.say(locationcurrent)
                         output_text.insert(tk.END, f"{locationcurrent}\n")
                         engine.runAndWait()
+                    elif "" in command:
+                        engine.say("Hello")
+                        engine.runAndWait()
+                        output_text.insert(tk.END, "Hello, nice to meet you!\n")
+                    elif "shutdown" in command.lower():
+                        engine.say("Shutting Down, Good bye !!")
+                        engine.runAndWait()
+                        output_text.insert(tk.END, "Shutting Down, Good bye !!\n")
+                        shutdown()
+                        engine.runAndWait()
+                    elif "thank" in command.lower() or "thank you" in command.lower() or "thanks" in command.lower():
+                        engine.say("I am glad to help you. Let me know if you want anything else.")
+                        output_text.insert(tk.END, "Welcome...\n")
+                        engine.runAndWait()
+                    elif "deactivate" in command.lower():
+                        output_text.insert(tk.END, "Sayonara!\n")
+                        engine.say("See you soon again! Sayonara...")
+                        engine.runAndWait()
+                        terminate()
+                    
             except sr.UnknownValueError:
                 output_text.insert(tk.END, "Sorry, could not understand audio.\n")
                 # engine.say("Sorry, could not understand audio.")
@@ -103,7 +124,24 @@ def get_calories(food_item):
         return calories
     else:
         return None
-    
+
+def shutdown():
+    if sys.platform.startswith('win'):
+        # Windows shutdown command
+        shutdown_command = "shutdown /s /t 1"
+    elif sys.platform.startswith('linux') or sys.platform == 'darwin':
+        # Linux shutdown command
+        shutdown_command = "shutdown -h now"
+    else:
+        print("Unsupported operating system.")
+        return False
+    try:
+        os.system(shutdown_command)
+        return True
+    except Exception as e:
+        print(f"Error executing shutdown command: {e}\n")
+        return False
+
 def get_location():
     r = requests.get('https://get.geojs.io/')
     ip=requests.get('https://get.geojs.io/v1/ip.json')
