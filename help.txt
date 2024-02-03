@@ -1,0 +1,85 @@
+JARVIS.ai, developed by "The Boys" team, is an advanced voice assistant designed to streamline various tasks and provide an interactive and intuitive user experience. Whether you need assistance with productivity, entertainment, or information retrieval, JARVIS.ai is here to help.
+
+*Voice Commands and Features:*
+
+To-Do List Management:
+
+Recognizes commands related to a to-do list.
+Execute tasks by mentioning keywords like "to do list."
+Weather and Temperature Updates:
+
+Retrieve real-time weather and temperature information.
+Keywords: "weather" or "temperature."
+News Fetching:
+
+Fetches the latest news headlines.
+Command: "news."
+Reminder Setting:
+
+Sets reminders for specified tasks.
+Command: "reminder."
+Application Launching:
+
+Opens specified applications (e.g., Instagram, Facebook, Mail).
+Command: "open [application name]."
+Music Playback:
+
+Plays music or songs based on user preferences.
+Command: "play [song name]."
+Humor and Jokes:
+
+Delivers jokes and humorous responses.
+Command: "joke."
+System Operations:
+
+Executes system operations like shutdown.
+Commands: "shutdown."
+Translation Services:
+
+Translates phrases to different languages.
+Command: "translate [text]."
+Study Mode:
+
+Initiates study mode for focused work.
+Command: "study mode."
+Wikipedia Search:
+
+Retrieves information from Wikipedia.
+Commands: "who" or "wikipedia."
+Google Search:
+
+Performs searches on Google.
+Commands: "search" or "google."
+Volume Control:
+
+Adjusts system volume.
+Command: "volume [level]."
+Expressing Gratitude:
+
+Responds to expressions of thanks.
+Commands: "thank you" or "thanks."
+Chatbot Interaction:
+
+Engages in conversations using Chat GPT.
+General conversation on various topics.
+Deactivation:
+
+Safely deactivates JARVIS.ai.
+Command: "deactivate."
+Additional Commands:
+
+IP Address Retrieval:
+
+Command: "ip."
+Taking Pictures:
+
+Command: "take a picture."
+Event Scheduling:
+
+Command: "schedule."
+Google Search Integration:
+
+Command: "search."
+Volume Management:
+
+Command: "volume."
