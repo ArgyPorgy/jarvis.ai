@@ -1,13 +1,65 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
-from PIL import Image, ImageTk
+from tkinter import ttk, messagebox, scrolledtext, PhotoImage
 from tkinter import *
+from PIL import Image, ImageTk
 import pyttsx3
 import webbrowser
 import threading
+import speech_recognition as sr
 
-engine = pyttsx3.init()
+engine = pyttsx3.init('sapi5')
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[1].id)
 engine.setProperty('rate', 150)
+listening_enabled = False
+
+def start_listening():
+    global listening_enabled
+    recognizer = sr.Recognizer()
+
+    with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source)
+        while listening_enabled:  # Check if listening is still enabled
+            output_text.insert(tk.END, "Listening...\n")
+            try:
+                isJarvis = ''
+                with sr.Microphone() as sourceT:
+                    recognizer.pause_threshold= 0.5 #new 
+                    hotword = recognizer.listen(sourceT)
+                    isJarvis = recognizer.recognize_google(hotword)
+                    output_text.insert(tk.END, isJarvis)
+                
+                if 'assistant' in isJarvis.lower() or "jarvis" in isJarvis.lower() or "john is" in isJarvis.lower() or "janice" in isJarvis.lower():
+                    # recognizer.pause_threshold= 1 #new 
+                    # change_border_color()
+                    output_text.insert(tk.END, "Hey\n")
+                    engine.say("Hello! ")
+                    # engine.runAndWait()
+                     
+                    audio = recognizer.listen(source, timeout=10)
+                    command = recognizer.recognize_google(audio)
+                    output_text.insert(tk.END, f"You said: {command}\n")
+
+                    if "can you hear" in command.lower():
+                        engine.say("Yes i can hear you!")
+                        engine.runAndWait()
+                        output_text.insert(tk.END, "Yes i can hear you!\n")
+
+            except sr.UnknownValueError:
+                output_text.insert(tk.END, "Sorry, could not understand audio.\n")
+                # engine.say("Sorry, could not understand audio.")
+                # engine.runAndWait()
+            except sr.WaitTimeoutError:
+                handle_wait_timeout_error()
+
+def handle_wait_timeout_error():
+    global listening_enabled
+    listening_enabled = False  # Set the flag to stop listening
+    message = "Timeout. Please try pressing the Activate button again."
+    output_text.insert(tk.END, message)
+    engine.say(message)
+    engine.runAndWait()
+    terminate()
 
 def terminate():
     global listening_enabled
@@ -50,7 +102,39 @@ def welcome_message():
     message = "Welcome! Use your mouth, not your finger! Tap the Activate button to start your personal assistant."
     engine.say(message)
     engine.runAndWait()
-    
+
+def show_help():
+    print("HElp showed")
+
+def study_mode_data():
+    print("Study mode enabled")
+
+def get_gpt_help():
+    if not get_gpt_help.has_run:
+        get_gpt_help.has_run = True
+        webbrowser.open("https://chat.openai.com/")
+        chatgpt_button.pack_forget()
+get_gpt_help.has_run = False
+
+def turn_off_study_mode():
+    print("Study mode disabled")
+
+def toggle_panel():
+    target_x = 0 if slide_panel.winfo_x() < 0 else -155
+    animate_slide(target_x)
+
+def animate_slide(target_x):
+    current_x = slide_panel.winfo_x()
+    animation_speed= 9
+    if current_x != target_x:
+        if current_x < target_x:
+            new_x = min(current_x + animation_speed, target_x)
+        else:
+            new_x = max(current_x - animation_speed, target_x)
+
+        slide_panel.place(x=new_x, y=100)
+        root.after(10, lambda: animate_slide(target_x))
+
 button_style1 = {
     "width": 11,
     "height": 1,
