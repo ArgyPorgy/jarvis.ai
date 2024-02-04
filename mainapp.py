@@ -20,7 +20,7 @@ import win32api
 from takpic import take_picture
 from web3 import Web3
 from datetime import datetime
-import pywhatkit as wp
+# import pywhatkit as wp
 from plyer import notification
 import winsound
 from pymongo import MongoClient
@@ -195,10 +195,37 @@ def start_listening():
                             engine.runAndWait()
 
                     elif "tweet" in command.lower():
-                        text = "Hello"
-                        tweet_py(text)
-                        engine.say("successfuly connected")
-                        engine.runAndWait()
+                        while True:
+                            # recognizer = sr.Recognizer()
+                            engine.say("What do you want to tweet?\n")
+                            engine.runAndWait()
+
+                            with sr.Microphone() as sou:
+                                recognizer.adjust_for_ambient_noise(sou)
+                                output_text.insert(tk.END, "What do you want to tweet?")
+                                
+                                try:
+                                    audio = recognizer.listen(sou, timeout=10)
+                                    matter = recognizer.recognize_google(audio)
+                                    output_text.insert(tk.END, f"Your message: {matter}\n")
+                                    matter+=' @diversion2k24'
+                                    tweet_py(matter)
+                                    break
+
+                                except sr.UnknownValueError:
+                                    output_text.insert(tk.END, "Sorry, could not understand audio. Please say again: ")
+                                    continue
+
+                                except Exception as e:
+                                    output_text.insert(tk.END, "Could not process the tweet! ")
+                                    break
+                            
+
+                                
+
+
+                        
+                     
                         
                     elif "deactivate" in command.lower():
                         output_text.insert(tk.END, "Sayonara!\n")
@@ -274,6 +301,7 @@ def get_calories(food_item):
         return None
     
 def searchWiki(query):
+    import pywhatkit as wp
     result = wp.info(query, lines = 2, return_value=True)
     return result
 
@@ -930,19 +958,30 @@ def turn_off_study_mode():
     engine.say(f"You studied for {study_time // 60} minutes and {study_time % 60} seconds.")
     engine.runAndWait()
 def tweet_py(Message):
-    consumer_key = 'jRfUDUAd3oBJdz9z8F1bFRtNX'
-    consumer_secret = 'WtIPMkHUH0K8j0Q7H6WRmZvbMW56C8tUvdsi3jMiRTRMQzrqNl'
-    access_token = '1680892753549619205-45X5mxohSxcKosD1y6CPWDVL5kUq70'
-    access_token_secret = '5vISBHXLajBw6C7jlwUJXFoE2sWhKGM0ulWTay8agpqjo'
-    barer_token = r'AAAAAAAAAAAAAAAAAAAAAP5dsAEAAAAAdljt3jHqwlyDx6nev0umK7vIGrk%3DDV4HphgfRiWhCSM4IDyUZFiPtYZs5Pb8Db7D0CGAaIQ7YCR0JJ'
-    client =tweepy.Client(barer_token,consumer_key,consumer_secret,access_token,access_token_secret)
-    auth = tweepy.OAuthHandler(consumer_key,consumer_secret,access_token,access_token_secret)
-    api = tweepy.API(auth)
+    try:
+        consumer_key = os.getenv('consumer_key')
+        consumer_secret = os.getenv('consumer_secret')
+        access_token = os.getenv('access_token')
+        access_token_secret = os.getenv('access_token_secret')
+        barer_token = os.getenv('barer_token')
+        client =tweepy.Client(barer_token,consumer_key,consumer_secret,access_token,access_token_secret)
+        auth = tweepy.OAuthHandler(consumer_key,consumer_secret,access_token,access_token_secret)
+        api = tweepy.API(auth)
 
-    # Your tweet content
-    tweet_content = Message
+        # Your tweet content
+        
+        tweet_content = Message
+        
 
-    client.create_tweet(text=tweet_content)
+        client.create_tweet(text=tweet_content)
+        output_text.insert(tk.END, "Successfully Tweeted")
+        engine.say("your message has been Tweeted! ")
+        engine.runAndWait()
+    except:
+        engine.say("Error")
+        output_text.insert(tk.END, "An error occurred")
+        engine.runAndWait()
+
 
 def toggle_panel():
     target_x = 0 if slide_panel.winfo_x() < 0 else -155
