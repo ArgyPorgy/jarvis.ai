@@ -1,85 +1,92 @@
-JARVIS.ai, developed by "The Boys" team, is an advanced voice assistant designed to streamline various tasks and provide an interactive and intuitive user experience. Whether you need assistance with productivity, entertainment, or information retrieval, JARVIS.ai is here to help.
+JARVIS.ai, developed by "The Boys" team, is an advanced voice assistant designed to streamline various tasks and provide an interactive and intuitive user experience. Whether you need assistance with productivity, entertainment, or information retrieval, JARVIS.ai is here to help. Just call 'Jarvis' or 'assistant' and say your command to explore Iron Man's Third eye.
 
 *Voice Commands and Features:*
 
-To-Do List Management:
+--Key Features--
 
-Recognizes commands related to a to-do list.
-Execute tasks by mentioning keywords like "to do list."
-Weather and Temperature Updates:
+1. Connect CCTV:
+Retrives information from CCTV camera.
+Command: "connect cctv"
 
-Retrieve real-time weather and temperature information.
-Keywords: "weather" or "temperature."
-News Fetching:
+2. Tweeting in Twitter(X):
+Tweets any commands in Twitter automatically
+Command: "tweet" and say your message
 
-Fetches the latest news headlines.
-Command: "news."
-Reminder Setting:
+3. Event Scheduling:
+Schedules an event on the Calendar
+Command: "schedule."
 
-Sets reminders for specified tasks.
-Command: "reminder."
-Application Launching:
+4. Calorie Counter:
+Counts calories after hearing the food items.
+Command: "calories in" 
 
-Opens specified applications (e.g., Instagram, Facebook, Mail).
-Command: "open [application name]."
-Music Playback:
+5. Biceps Workout:
+Works as a Biceps Trainer, counting reps.
+Command: "biceps"
 
-Plays music or songs based on user preferences.
-Command: "play [song name]."
-Humor and Jokes:
+6. Music Playback:
+Plays music or songs based on user preferences and downloads it in your local device.
+Command: "play [song name]"
 
-Delivers jokes and humorous responses.
-Command: "joke."
-System Operations:
-
-Executes system operations like shutdown.
-Commands: "shutdown."
-Translation Services:
-
+7. Translation Services:
 Translates phrases to different languages.
-Command: "translate [text]."
-Study Mode:
+Command: "translate [text]"
 
+8. Study Mode:
 Initiates study mode for focused work.
-Command: "study mode."
-Wikipedia Search:
+Command: "study mode"
 
-Retrieves information from Wikipedia.
-Commands: "who" or "wikipedia."
-Google Search:
+9. Taking Pictures:
+Command: "take a picture"
 
-Performs searches on Google.
-Commands: "search" or "google."
-Volume Control:
+10. Reminder Setting:
+Sets reminders for specified tasks at a specific time.
+Command: "reminder"
 
+11. Application Launching:
+Opens specified applications (e.g., Instagram, Facebook, Mail).
+Command: "open [application name]"
+
+12. Volume Control:
 Adjusts system volume.
-Command: "volume [level]."
-Expressing Gratitude:
+Command: "volume [level]"
 
+--Other Interesting Features--
+
+1. Weather and Temperature Updates:
+Retrieve real-time weather and temperature information.
+Keywords: "weather" or "temperature"
+
+2. News Fetching:
+Fetches the latest news headlines.
+Command: "news"
+
+3. Humor and Jokes:
+Delivers jokes and humorous responses.
+Command: "joke"
+
+4. IP Address Retrieval:
+Command: "IP"
+
+5. Address Retrieval with Map View:
+Command: "location"
+
+6. System Operations:
+Executes system operations like shutdown.
+Commands: "shutdown"
+
+7. Wikipedia Search:
+Retrieves information from Wikipedia.
+Commands: "who" or "wikipedia"
+
+8. Expressing Gratitude:
 Responds to expressions of thanks.
-Commands: "thank you" or "thanks."
-Chatbot Interaction:
+Commands: "thank you" or "thanks"
 
+9. Chatbot Interaction:
 Engages in conversations using Chat GPT.
 General conversation on various topics.
-Deactivation:
 
+10. Deactivation:
 Safely deactivates JARVIS.ai.
-Command: "deactivate."
-Additional Commands:
-
-IP Address Retrieval:
-
-Command: "ip."
-Taking Pictures:
-
-Command: "take a picture."
-Event Scheduling:
-
-Command: "schedule."
-Google Search Integration:
-
-Command: "search."
-Volume Management:
-
-Command: "volume."
+Command: "deactivate"
