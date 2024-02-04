@@ -12,16 +12,21 @@ import pandas as pd
 import requests
 import random
 import time
+from autoYT import play
 import sys
 import tweepy
 import os
 import win32api
+from takpic import take_picture
 from web3 import Web3
 from datetime import datetime
-import pywhatkit as wp
+# import pywhatkit as wp
 from plyer import notification
 import winsound
 from pymongo import MongoClient
+from ctypes import cast, POINTER
+from comtypes import CLSCTX_ALL
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 from dotenv import load_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -59,6 +64,27 @@ def get_command(command):
     elif "jarvis" in command:
         command = command.split("jarvis")[1].strip()
     return command
+
+def set_volume(volume):
+    devices = AudioUtilities.GetSpeakers()
+    interface = devices.Activate(
+        IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+    volume_interface = cast(interface, POINTER(IAudioEndpointVolume))
+    volume_interface.SetMasterVolumeLevelScalar(volume, None)
+
+def music(command):
+    command = command.lower()
+    if "play" in command:
+        command = command.replace("play", '')
+    engine.say("Fetching data")
+    engine.runAndWait()
+    change_border_color()
+    output_text.insert(tk.END, "\nFetching Data...\n")
+    # animate_border()
+    # wp.playonyt(command)
+    play(command)
+    engine.say("Playing on your device")
+    engine.runAndWait()
 
 def start_listening():
     global listening_enabled
@@ -100,6 +126,7 @@ def start_listening():
                         change_background_image()
                         engine.say("I was made by the team THE BOYS")
                         engine.runAndWait()
+                    
                     elif "reminder" in command.lower() or "alarm" in command.lower():
                         output_text.insert(tk.END, "Setting reminder...\n")
                         engine.say("Setting reminder")
@@ -110,12 +137,30 @@ def start_listening():
                         start_listening()
                         noti.join()
                         # engine.runAndWait()
-                    elif "location" in command.lower() or "where i am" in command.lower():
+                    elif "location" in command.lower() or "where am i" in command.lower():
                         locationcurrent = get_location()
                         engine.say(locationcurrent)
                         output_text.insert(tk.END, f"{locationcurrent}\n")
                         webbrowser.open("https://www.google.com/maps/place/" + locationcurrent, new=1, autoraise=True)
                         engine.runAndWait()
+                    elif "take a picture" in command.lower():
+                        output_text.insert(tk.END, "Smile Please!\n")
+                        engine.say("Say Cheese!")
+                        engine.runAndWait()
+                        take_picture()
+                    elif "play" in command.lower() or "song" in command.lower():
+                        music(command)
+                    elif "volume" in command.lower():
+                        try:
+                            command = command.replace("volume", "")
+                            if "full" in command.lower():
+                                set_volume(1)
+                            elif "mute" in command.lower():
+                                set_volume(0)
+                            else:
+                                set_volume(int(command)/10)
+                        except Exception:
+                            output_text.insert(tk.END, "couldn't perform that operation")
                     elif command == "":
                         engine.say("Hello")
                         engine.runAndWait()
@@ -159,10 +204,37 @@ def start_listening():
                             engine.runAndWait()
 
                     elif "tweet" in command.lower():
-                        text = "Hello"
-                        tweet_py(text)
-                        engine.say("successfuly connected")
-                        engine.runAndWait()
+                        while True:
+                            # recognizer = sr.Recognizer()
+                            engine.say("What do you want to tweet?\n")
+                            engine.runAndWait()
+
+                            with sr.Microphone() as sou:
+                                recognizer.adjust_for_ambient_noise(sou)
+                                output_text.insert(tk.END, "What do you want to tweet?")
+                                
+                                try:
+                                    audio = recognizer.listen(sou, timeout=10)
+                                    matter = recognizer.recognize_google(audio)
+                                    output_text.insert(tk.END, f"Your message: {matter}\n")
+                                    matter+=' @diversion2k24'
+                                    tweet_py(matter)
+                                    break
+
+                                except sr.UnknownValueError:
+                                    output_text.insert(tk.END, "Sorry, could not understand audio. Please say again: ")
+                                    continue
+
+                                except Exception as e:
+                                    output_text.insert(tk.END, "Could not process the tweet! ")
+                                    break
+                            
+
+                                
+
+
+                        
+                     
                         
                     elif "deactivate" in command.lower():
                         output_text.insert(tk.END, "Sayonara!\n")
@@ -257,6 +329,7 @@ def get_calories(food_item):
         return None
     
 def searchWiki(query):
+    import pywhatkit as wp
     result = wp.info(query, lines = 2, return_value=True)
     return result
 
@@ -709,8 +782,7 @@ def change_border_color():
     # Schedule the function to run again after a delay (e.g., 100 milliseconds)
     if (time.time() - start_time) < 1:
         root.after(500, change_border_color)
-def show_help():
-    messagebox.showinfo("Help", "This is a help message.")
+    
 
 def show_contributors():
     messagebox.showinfo("Contributors", "Jarvis: The AI Voice Assistant is made by the team - 'The Boys'.\nThe contributors are as follows:\n 1. Arghya Chowdhury \n 2. Devjyoti Banerjee \n 3. Sayan Genri \n 4. Soham De")
@@ -927,19 +999,30 @@ def turn_off_study_mode():
     engine.say(f"You studied for {study_time // 60} minutes and {study_time % 60} seconds.")
     engine.runAndWait()
 def tweet_py(Message):
-    consumer_key = 'jRfUDUAd3oBJdz9z8F1bFRtNX'
-    consumer_secret = 'WtIPMkHUH0K8j0Q7H6WRmZvbMW56C8tUvdsi3jMiRTRMQzrqNl'
-    access_token = '1680892753549619205-45X5mxohSxcKosD1y6CPWDVL5kUq70'
-    access_token_secret = '5vISBHXLajBw6C7jlwUJXFoE2sWhKGM0ulWTay8agpqjo'
-    barer_token = r'AAAAAAAAAAAAAAAAAAAAAP5dsAEAAAAAdljt3jHqwlyDx6nev0umK7vIGrk%3DDV4HphgfRiWhCSM4IDyUZFiPtYZs5Pb8Db7D0CGAaIQ7YCR0JJ'
-    client =tweepy.Client(barer_token,consumer_key,consumer_secret,access_token,access_token_secret)
-    auth = tweepy.OAuthHandler(consumer_key,consumer_secret,access_token,access_token_secret)
-    api = tweepy.API(auth)
+    try:
+        consumer_key = os.getenv('consumer_key')
+        consumer_secret = os.getenv('consumer_secret')
+        access_token = os.getenv('access_token')
+        access_token_secret = os.getenv('access_token_secret')
+        barer_token = os.getenv('barer_token')
+        client =tweepy.Client(barer_token,consumer_key,consumer_secret,access_token,access_token_secret)
+        auth = tweepy.OAuthHandler(consumer_key,consumer_secret,access_token,access_token_secret)
+        api = tweepy.API(auth)
 
-    # Your tweet content
-    tweet_content = Message
+        # Your tweet content
+        
+        tweet_content = Message
+        
 
-    client.create_tweet(text=tweet_content)
+        client.create_tweet(text=tweet_content)
+        output_text.insert(tk.END, "Successfully Tweeted")
+        engine.say("your message has been Tweeted! ")
+        engine.runAndWait()
+    except:
+        engine.say("Error")
+        output_text.insert(tk.END, "An error occurred")
+        engine.runAndWait()
+
 
 def toggle_panel():
     target_x = 0 if slide_panel.winfo_x() < 0 else -155
