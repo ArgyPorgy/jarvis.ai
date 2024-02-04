@@ -30,6 +30,14 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import ast
 from cctv import cctv
+from addtocart import add_to_wishlist
+from aitrainer import biceps
+import cv2
+import mediapipe as mp
+import numpy as np
+
+
+
 
 start_time = time.time()
 engine = pyttsx3.init('sapi5')
@@ -37,6 +45,7 @@ voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[1].id)
 engine.setProperty('rate', 150)
 listening_enabled = False
+
 
 load_dotenv()
 api_key = os.environ.get("WEATHER_API_KEY")
@@ -179,6 +188,25 @@ def start_listening():
                         output_text.insert(tk.END, joke)
                         engine.say(joke)
                         engine.runAndWait()
+
+                    elif "biceps" in command.lower():
+                        engine.say("Jarvis Gym mode activated..")
+                        engine.say("Press 'q' to stop") 
+                        engine.runAndWait()
+                        output_text.insert(tk.END, "Press 'q' to stop \n")
+                        biceps()
+    
+                        
+                        
+
+
+                        
+
+                    elif "wishlist" in command.lower():
+                        add_to_wishlist(command) 
+                        engine.say("added to wishlist successfully")  
+                        engine.runAndWait()
+
                     elif "study mode" in command.lower():
                         engine.say("initiating study mode")
                         # engine.runAndWait()
@@ -231,6 +259,19 @@ def get_calories(food_item):
 def searchWiki(query):
     result = wp.info(query, lines = 2, return_value=True)
     return result
+
+def calculate_angle(a,b,c):
+    a = np.array(a) # First
+    b = np.array(b) # Mid
+    c = np.array(c) # End
+    
+    radians = np.arctan2(c[1]-b[1], c[0]-b[0]) - np.arctan2(a[1]-b[1], a[0]-b[0])
+    angle = np.abs(radians*180.0/np.pi)
+    
+    if angle >180.0:
+        angle = 360-angle
+        
+    return angle
 
 def get_dad_joke():
     url = "https://icanhazdadjoke.com/"
