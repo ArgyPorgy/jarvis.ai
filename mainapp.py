@@ -12,13 +12,18 @@ import pandas as pd
 import requests
 import random
 import time
+from autoYT import play
 import sys
 import os
 import win32api
+from takpic import take_picture
 from web3 import Web3
 from datetime import datetime
 import pywhatkit as wp
 from pymongo import MongoClient
+from ctypes import cast, POINTER
+from comtypes import CLSCTX_ALL
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 from dotenv import load_dotenv
 start_time = time.time()
 engine = pyttsx3.init('sapi5')
@@ -38,6 +43,27 @@ def get_command(command):
     elif "jarvis" in command:
         command = command.split("jarvis")[1].strip()
     return command
+
+def set_volume(volume):
+    devices = AudioUtilities.GetSpeakers()
+    interface = devices.Activate(
+        IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+    volume_interface = cast(interface, POINTER(IAudioEndpointVolume))
+    volume_interface.SetMasterVolumeLevelScalar(volume, None)
+
+def music(command):
+    command = command.lower()
+    if "play" in command:
+        command = command.replace("play", '')
+    engine.say("Fetching data")
+    engine.runAndWait()
+    change_border_color()
+    output_text.insert(tk.END, "\nFetching Data...\n")
+    # animate_border()
+    # wp.playonyt(command)
+    play(command)
+    engine.say("Playing on your device")
+    engine.runAndWait()
 
 def start_listening():
     global listening_enabled
@@ -79,11 +105,29 @@ def start_listening():
                         change_background_image()
                         engine.say("I was made by the team THE BOYS")
                         engine.runAndWait()
-                    elif "location" in command.lower() or "where i am" in command.lower():
+                    elif "location" in command.lower() or "where am i" in command.lower():
                         locationcurrent = get_location()
                         engine.say(locationcurrent)
                         output_text.insert(tk.END, f"{locationcurrent}\n")
                         engine.runAndWait()
+                    elif "take a picture" in command.lower():
+                        output_text.insert(tk.END, "Smile Please!\n")
+                        engine.say("Say Cheese!")
+                        engine.runAndWait()
+                        take_picture()
+                    elif "play" in command.lower() or "song" in command.lower():
+                        music(command)
+                    elif "volume" in command.lower():
+                        try:
+                            command = command.replace("volume", "")
+                            if "full" in command.lower():
+                                set_volume(1)
+                            elif "mute" in command.lower():
+                                set_volume(0)
+                            else:
+                                set_volume(int(command)/10)
+                        except Exception:
+                            output_text.insert(tk.END, "couldn't perform that operation")
                     elif command == "":
                         engine.say("Hello")
                         engine.runAndWait()
