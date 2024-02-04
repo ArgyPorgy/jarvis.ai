@@ -5,7 +5,7 @@ import pandas as pd
 food_data = pd.read_csv('food.csv')
 
 # Set your OpenAI API key
-openai.api_key = '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'
+
 
 
 def get_calories(food_item):
