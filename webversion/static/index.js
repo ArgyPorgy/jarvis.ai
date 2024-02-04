@@ -198,7 +198,7 @@ async function purchaseWithMetamask() {
         // Create a download link
         const downloadLink = document.createElement('a');
         downloadLink.href = URL.createObjectURL(blob);
-        downloadLink.download = 'fck.txt';
+        downloadLink.download = 'APP.txt';
 
         // Append the link to the body and click it to trigger the download
         document.body.appendChild(downloadLink);
