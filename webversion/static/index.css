@@ -1,9 +1,28 @@
+/* index.css */
+/* index.css */
+
 body {
-    font-family: 'Arial', sans-serif;
+    background-image: url("background.jpg"); /* Adjust the path as needed */
+    background-size: cover;
+    background-position: center;
+    background-repeat: repeat;
     margin: 0;
-    padding: 0;
-    background-color: rgb(127, 210, 255);
-}
+    font-family: Arial, sans-serif; /* Adjust font-family as needed */
+    animation: subtleMovement 30s infinite linear; /* Adjust the duration and other parameters as needed */
+  }
+  
+  @keyframes subtleMovement {
+    0% {
+      background-position: 0% 0%;
+    }
+    50% {
+      background-position: 100% 100%;
+    }
+    100% {
+      background-position: 0% 0%;
+    }
+  }
+  
 
 .page-wrapper {
     display: flex;
@@ -23,19 +42,26 @@ header {
     color: #fff;
     padding: 20px;
 }
-h1{
-    margin: 50px 0px;
-    font-size: 2.5em;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    text-align: center;}
+h1 {
+  font-family: cursive;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  margin: 20px 0;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 2em;
+  transition: background-color 0.3s ease;
+}
 h2 {
     margin: 0;
 }
 
 section {
-    background-color: #fff;
+    background-color: #ffffff68;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -55,7 +81,7 @@ button {
     font-size: 16px;
     margin: 10px;
     cursor: pointer;
-    background-color: #3498db;
+    background-color: #1905f2;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -176,3 +202,29 @@ button[type="submit"]:hover {
         padding: 0;
     
     }
+    /* styles.css */
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+.guide-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+    color: #333;
+    text-align: center;
+}
+
+.guide-paragraph {
+    color: #666;
+    line-height: 1.6;
+}

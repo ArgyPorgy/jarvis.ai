@@ -13,6 +13,7 @@ import requests
 import random
 import time
 import sys
+import tweepy
 import os
 import win32api
 from web3 import Web3
@@ -148,7 +149,12 @@ def start_listening():
                             engine.say("An error occurred!") 
                             engine.runAndWait()
 
-
+                    elif "tweet" in command.lower():
+                        text = "Hello"
+                        tweet_py(text)
+                        engine.say("successfuly connected")
+                        engine.runAndWait()
+                        
                     elif "deactivate" in command.lower():
                         output_text.insert(tk.END, "Sayonara!\n")
                         engine.say("See you soon again! Sayonara...")
@@ -879,6 +885,20 @@ def turn_off_study_mode():
 
     engine.say(f"You studied for {study_time // 60} minutes and {study_time % 60} seconds.")
     engine.runAndWait()
+def tweet_py(Message):
+    consumer_key = 'jRfUDUAd3oBJdz9z8F1bFRtNX'
+    consumer_secret = 'WtIPMkHUH0K8j0Q7H6WRmZvbMW56C8tUvdsi3jMiRTRMQzrqNl'
+    access_token = '1680892753549619205-45X5mxohSxcKosD1y6CPWDVL5kUq70'
+    access_token_secret = '5vISBHXLajBw6C7jlwUJXFoE2sWhKGM0ulWTay8agpqjo'
+    barer_token = r'AAAAAAAAAAAAAAAAAAAAAP5dsAEAAAAAdljt3jHqwlyDx6nev0umK7vIGrk%3DDV4HphgfRiWhCSM4IDyUZFiPtYZs5Pb8Db7D0CGAaIQ7YCR0JJ'
+    client =tweepy.Client(barer_token,consumer_key,consumer_secret,access_token,access_token_secret)
+    auth = tweepy.OAuthHandler(consumer_key,consumer_secret,access_token,access_token_secret)
+    api = tweepy.API(auth)
+
+    # Your tweet content
+    tweet_content = Message
+
+    client.create_tweet(text=tweet_content)
 
 def toggle_panel():
     target_x = 0 if slide_panel.winfo_x() < 0 else -155
